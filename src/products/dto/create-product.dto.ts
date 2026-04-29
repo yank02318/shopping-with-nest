@@ -1,4 +1,4 @@
-import { IsString, IsOptional, Length, IsCurrency } from 'class-validator';
+import { IsString, IsOptional, Length, IsNumber, Min} from 'class-validator';
 
 export class CreateProductDto {
 
@@ -11,6 +11,7 @@ export class CreateProductDto {
   @IsOptional()
   desc?: string;
 
-  @IsCurrency()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
   price!: number;
 }

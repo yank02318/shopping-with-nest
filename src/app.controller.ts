@@ -1,9 +1,12 @@
 import { Controller, Get } from "@nestjs/common";
+import { AppService } from "./app.service.js";
 
 @Controller()
 export class AppController {
+	constructor(private readonly appService: AppService) {}
+
 	@Get()
 	getHello(): { message: string } {
-		return { message: "Hello from custom shopping list" };
+		return this.appService.getHello();
 	}
 }

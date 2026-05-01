@@ -1,52 +1,52 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto.js';
-import { UpdateProductDto } from './dto/update-product.dto.js';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service.js";
+import { CreateProductDto } from "./dto/create-product.dto.js";
+import { UpdateProductDto } from "./dto/update-product.dto.js";
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-  create(createProductDto: CreateProductDto) {
-    return this.prisma.product.create({
-      data: createProductDto
-    })
-  }
+	create(createProductDto: CreateProductDto) {
+		return this.prisma.product.create({
+			data: createProductDto,
+		});
+	}
 
-  findAll() {
-    return this.prisma.product.findMany({
-      orderBy: {
-        id: 'asc'
-      }
-    })
-  }
+	findAll() {
+		return this.prisma.product.findMany({
+			orderBy: {
+				id: "asc",
+			},
+		});
+	}
 
-  async findOne(id: number) {
-    const product = await this.prisma.product.findUnique({
-      where: {id}
-    })
+	async findOne(id: number) {
+		const product = await this.prisma.product.findUnique({
+			where: { id },
+		});
 
-    if (!product){
-      throw new NotFoundException(`Task with id ${id} not found!`)
-    }
+		if (!product) {
+			throw new NotFoundException(`Task with id ${id} not found!`);
+		}
 
-    return product;
-  }
+		return product;
+	}
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    await this.findOne(id);
+	async update(id: number, updateProductDto: UpdateProductDto) {
+		await this.findOne(id);
 
-    return this.prisma.product.update({
-      where: {id},
-      data: updateProductDto
-    })
-  }
+		return this.prisma.product.update({
+			where: { id },
+			data: updateProductDto,
+		});
+	}
 
-  async remove(id: number) {
-    await this.findOne(id);
+	async remove(id: number) {
+		await this.findOne(id);
 
-    return this.prisma.product.delete({
-      where: {id}
-    })
-  }
+		return this.prisma.product.delete({
+			where: { id },
+		});
+	}
 }

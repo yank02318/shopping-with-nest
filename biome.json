@@ -16,10 +16,20 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"useImportType": "off"
+			"style": {
+				"useImportType": "off",
+				"noParameterProperties": "off",
+				"useReadonlyClassProperties": "off"
+			},
+			"correctness": {
+				"noUnusedPrivateClassMembers": "off"
+			}
 		}
 	},
 	"javascript": {
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		},
 		"formatter": {
 			"quoteStyle": "double"
 		}

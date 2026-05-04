@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AppService {
-	getHello(): { message: string } {
-		return { message: "Hello from my custom nest service" };
+	getHello(): { appName: string; status: string; version: string } {
+		return { appName: "devops-shopping", status: "running", version: "1.0.0" };
 	}
 }

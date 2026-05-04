@@ -4,3 +4,7 @@ node_modules
 .vscode
 dist
 /prisma/src/generated/prisma
+
+coverage/
+*.log
+*.tsbuildinfo

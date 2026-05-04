@@ -6,9 +6,16 @@ const config: Config = {
 	rootDir: ".",
 	testRegex: ".*\\.test\\.ts$",
 	transform: {
-		"^.+\\.(t|j)s$": ["ts-jest", { tsconfig: "tsconfig.json" }],
+		"^.+\\.(t|j)s$": ["ts-jest", { tsconfig: "tsconfig.test.json" }],
 	},
-	collectCoverageFrom: ["*.(t|j)s"],
+	moduleNameMapper: {
+		"^(\\.{1,2}/.*)\\.js$": "$1",
+	},
+	collectCoverageFrom: [
+		"src/**/*.(t|j)s",
+		"!src/**/*.d.ts",
+		"!src/**/*.test.ts",
+	],
 	coverageDirectory: "coverage",
 	testEnvironment: "node",
 };

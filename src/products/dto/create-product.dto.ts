@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { IsNumber, IsOptional, IsString, Length, Min } from "class-validator";
 
 export class CreateProductDto {
@@ -12,5 +13,5 @@ export class CreateProductDto {
 
 	@IsNumber({ maxDecimalPlaces: 2 })
 	@Min(0)
-	price!: number;
+	price!: Prisma.Decimal;
 }

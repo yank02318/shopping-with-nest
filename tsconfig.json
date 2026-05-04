@@ -5,12 +5,10 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"esModuleInterop": true,
-		"rootDir": "./src",
-		"outDir": "./dist",
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"target": "ES2023",
-		"types": ["node", "jest"],
+		"types": ["node"],
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
@@ -20,7 +18,5 @@
 		"skipLibCheck": true,
 		"strictNullChecks": true,
 		"isolatedModules": true
-	},
-	"include": ["src/**/*", "prisma"],
-	"exclude": ["node_modules", "dist", "test", "**/*spec.ts", "**/*.config.ts"]
+	}
 }

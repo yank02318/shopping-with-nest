@@ -1,0 +1,71 @@
+services:
+
+  # ─── PostgreSQL Database ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine                   # Official Postgres 17 on Alpine
+    container_name: shopping-postgres           # Fixed container name for easy `docker logs shopping-postgres`
+    restart: unless-stopped                     # Auto-restart unless you stop it manually
+    env_file: .env.docker                       # Loads POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB at runtime
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Named volume so DB data survives container recreation                             # Expose Postgres on the host (handy for local clients; remove in prod)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-shopping}"]  # Pings Postgres
+      interval: 10s                             # Check every 10 seconds
+      timeout: 5s                               # Each check has up to 5s to respond
+      retries: 5                                # Mark unhealthy after 5 consecutive failures
+      start_period: 20s                         # Grace period for first boot before counting failures
+    networks:
+      - app-network                             # Shared bridge network with the API and migrate jobs
+
+  # ─── Prisma Migrate (one-shot job) ────────────────────────────────────────
+  migrate:
+    build:
+      context: .                                # Build context = repo root
+      dockerfile: Dockerfile                    # Same Dockerfile as the API
+      target: builder                           # Use the "builder" stage — it has dev deps + prisma CLI available
+    # CHANGED: regenerate the Prisma client at runtime BEFORE running migrate deploy.
+    # Reason: the build-time `prisma generate` used a placeholder DATABASE_URL. Running it again here
+    # (where the real DATABASE_URL is loaded from .env.docker) ensures the client is correctly wired.
+    # `migrate deploy` applies any pending migrations against the real database.
+    command: >
+      sh -c "npx prisma generate && npx prisma migrate deploy"
+    env_file: .env.docker                       # Provides the REAL DATABASE_URL at runtime
+    depends_on:
+      postgres:
+        condition: service_healthy              # Wait until Postgres reports healthy before migrating
+    restart: on-failure                         # Retry the one-shot job if it fails (e.g. transient DB hiccup)
+    networks:
+      - app-network                             # Same network so it can reach the `postgres` host
+
+  # ─── NestJS Application ───────────────────────────────────────────────────
+  api:
+    build:
+      context: .                                # Build context = repo root
+      dockerfile: Dockerfile                    # Same Dockerfile
+      target: production                        # Use the lean production stage
+    container_name: shopping-api                # Friendly fixed container name
+    restart: unless-stopped                     # Auto-restart on crash, but not after manual stop
+    env_file: .env.docker                       # Real DATABASE_URL + any app secrets at runtime
+    ports:
+      - "${PORT:-3000}:3000"                # Map host API_PORT (default 3000) → container 3000
+    depends_on:
+      migrate:
+        condition: service_completed_successfully  # Only start once migrations have finished cleanly
+      postgres:
+        condition: service_healthy              # And Postgres is healthy
+    healthcheck:
+      # NOTE: this requires wget inside the image — we added `apk add --no-cache wget` in the Dockerfile.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]  # Hits your /health endpoint
+      interval: 15s                             # Check every 15s
+      timeout: 5s                               # Up to 5s per check
+      retries: 4                                # 4 failures → unhealthy
+      start_period: 30s                         # Give Nest 30s to boot before counting failures
+    networks:
+      - app-network                             # Shared network with postgres + migrate
+
+volumes:
+  postgres_data:                                # Declared named volume for Postgres data persistence
+
+networks:
+  app-network:                                  # Custom bridge network so services can resolve each other by name
+    driver: bridge                              # Standard bridge driver (default, but explicit for clarity)

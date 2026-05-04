@@ -1,0 +1,56 @@
+# ─── Version Control ──────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ─── Node Modules ─────────────────────────────────────────────────────────────
+# Docker installs these fresh via `npm ci` in the deps stage
+node_modules
+
+# ─── Build Output ─────────────────────────────────────────────────────────────
+# Built fresh in the builder stage
+dist
+
+# ─── Environment & Secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example        # allow the example file through for documentation
+
+# ─── Test & Coverage ──────────────────────────────────────────────────────────
+coverage
+__tests__
+**/*.test.ts
+**/*.spec.ts
+jest.config.*
+
+# ─── Biome / Linting ──────────────────────────────────────────────────────────
+biome.json
+biome.jsonc
+
+# ─── Docker Files ─────────────────────────────────────────────────────────────
+# No need to copy these into the image
+Dockerfile
+Dockerfile.*
+docker-compose*.yaml
+.dockerignore
+
+# ─── Editor & OS ──────────────────────────────────────────────────────────────
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ─── Logs & Tmp ───────────────────────────────────────────────────────────────
+logs
+*.log
+npm-debug.log*
+tmp
+temp
+
+# ─── Docs & Misc ──────────────────────────────────────────────────────────────
+README.md
+CHANGELOG.md
+LICENSE
+docs
